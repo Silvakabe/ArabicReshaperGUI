@@ -27,17 +27,18 @@ jobs:
 
       - name: Build executable
         run: |
-          pyinstaller --onefile, --name "ReshaperGUI", --windowed, reshapeGUI.py 
+          pyinstaller --onefile --name "ReshaperGUI" --windowed reshapeGUI.py
+
       - name: Upload executable
         uses: actions/upload-artifact@v4
         with:
           name: built-executable
           path: dist/reshapeGUI.exe
-          
-      - name: Clean up (optional)    
+
+      - name: Clean up (optional)
         run: |
-          # Optionally clean up the build folder
-          rm -rf build dist reshapeGUI.spec
+          del /f /q build dist reshapeGUI.spec
+          rmdir /s /q build dist
 
       - name: Notify success (optional)
         run: |
