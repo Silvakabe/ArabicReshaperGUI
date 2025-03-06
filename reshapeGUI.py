@@ -14,7 +14,13 @@ def Take_input():
     INPUT = inputtxt.get("1.0",'end-1c')
     Output.delete(0.0,END)
     reshape = reshaper.reshape(INPUT)
-    Output.insert(END, reshape)
+    if check_var.get() == 0:
+        Output.insert(END, reshape)
+    else:
+        reshaped_lines = reshape.split('\n')
+        reshaped_lines = ["{a:r:}" + line + "{a:r:}" for line in reshaped_lines]
+        reshaped_text = '\n'.join(reshaped_lines)
+        Output.insert(END, reshaped_text)
 
 def copy_output():
     root.clipboard_clear()
@@ -36,7 +42,8 @@ paste_button = Button(button_frame, text="Paste", command=paste_text)
 Display = Button(button_frame, text="Convert", command=Take_input)
 copy_output_button = Button(button_frame, text="Copy Output", command=copy_output)
 
-
+check_var = IntVar()
+check = Checkbutton(root, text="Include {a:r:}", variable=check_var)
 
 l.pack()
 inputtxt.pack()
@@ -45,6 +52,6 @@ paste_button.pack(side=LEFT)
 Display.pack(side=LEFT)
 copy_output_button.pack(side=LEFT)
 Output.pack()
-
+check.pack()
 
 root.mainloop()
