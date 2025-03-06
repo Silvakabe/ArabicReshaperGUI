@@ -25,14 +25,23 @@ jobs:
           requirements: 'requirements.txt'
           upload_exe_with_name: 'ReshaperGUI'
           options: --onefile, --name "ReshaperGUI", --windowed
+
+      - name: Set version number
+        id: set_version
+        run: |
+          # Subtract 16 from the run number to start from 1
+          VERSION=$((github.run_number - 16))
+          echo "Release version: $VERSION"
+          echo "release_version=$VERSION" >> $GITHUB_ENV
+
       - name: Create GitHub release
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
+          tag_name: v${{ env.release_version }}
+          release_name: Release v${{ env.release_version }}
           body: |
-            This is the release for version ${{ github.run_number }}.
+            This is the release for version v${{ env.release_version }}.
           draft: false
           prerelease: false
         env:
@@ -45,6 +54,9 @@ jobs:
           asset_path: dist/reshapeGUI.exe
           asset_name: reshapeGUI.exe
           asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Clean up
         run: |
           Remove-Item -Recurse -Force build, dist, reshapeGUI.spec
@@ -52,4 +64,3 @@ jobs:
       - name: Notify success
         run: |
           echo "Build and release completed successfully!"
-      
