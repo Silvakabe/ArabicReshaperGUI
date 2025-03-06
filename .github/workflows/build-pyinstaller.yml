@@ -3,7 +3,7 @@ name: Build with PyInstaller
 on: 
   push:
     branches:
-      - main
+      - Main
   pull_request:
 
 jobs:
