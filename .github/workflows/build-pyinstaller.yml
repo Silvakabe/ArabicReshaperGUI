@@ -16,13 +16,19 @@ jobs:
           python_ver: '3.8'
           spec: 'reshapeGUI.spec'
           requirements: 'requirements.txt'
-          upload_exe_with_name: 'My executable'
+          upload_exe_with_name: 'ReshaperGUI'
           options: --onefile, --name "ReshaperGUI", --windowed
-      - name: Clean up (optional)
+          
+      - name: Clean up
         run: |
-          # Optionally clean up the build folder
-          rm -rf build dist reshapeGUI.spec
+          Remove-Item -Recurse -Force build, dist, reshapeGUI.spec
 
-      - name: Notify success (optional)
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-executable
+          path: dist/ReshaperGUI.exe
+      - name: Notify success
         run: |
           echo "Build completed successfully!"
+     
