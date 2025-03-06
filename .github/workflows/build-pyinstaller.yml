@@ -29,8 +29,23 @@ jobs:
         run: |
           pyinstaller --onefile --windowed reshapeGUI.py  # Change main.py to your script
 
+      - name: Add version to executable (optional)
+        run: |
+          # Adding version to the exe file
+          # You can use PyInstaller hooks or tools like Inno Setup or NSIS to add version info
+          echo "Version 1.0.0" > dist/reshapeGUI.version.txt
+
       - name: Upload executable
         uses: actions/upload-artifact@v4
         with:
           name: built-executable
-          path: dist/main.exe  # Ensure this path matches your PyInstaller output
+          path: dist/reshapeGUI.exe  # Ensure this path matches your PyInstaller output
+
+      - name: Clean up (optional)
+        run: |
+          # Optionally clean up the build folder
+          rm -rf build dist reshapeGUI.spec
+
+      - name: Notify success (optional)
+        run: |
+          echo "Build completed successfully!"
