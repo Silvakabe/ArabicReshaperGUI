@@ -25,19 +25,6 @@ jobs:
           requirements: 'requirements.txt'
           upload_exe_with_name: 'ReshaperGUI'
           options: --onefile, --name "ReshaperGUI", --windowed
-
-      - name: Clean up
-        run: |
-          Remove-Item -Recurse -Force build, dist, reshapeGUI.spec
-          
-      - name: Notify success
-        run: |
-          echo "Build and release completed successfully!"
-  release:
-      name: "Create Release"
-      runs-on: windows-latest
-      needs: build
-      steps:
       - name: Create GitHub release
         id: create_release
         uses: actions/create-release@v1
@@ -58,3 +45,11 @@ jobs:
           asset_path: dist/ReshaperGUI.exe
           asset_name: ReshaperGUI.exe
           asset_content_type: application/octet-stream
+      - name: Clean up
+        run: |
+          Remove-Item -Recurse -Force build, dist, reshapeGUI.spec
+          
+      - name: Notify success
+        run: |
+          echo "Build and release completed successfully!"
+      
