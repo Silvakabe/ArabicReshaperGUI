@@ -29,10 +29,12 @@ jobs:
       - name: Set version number
         id: set_version
         run: |
-          # Subtract 16 from the run number to start from 1
-          VERSION=$((github.run_number - 16))
+          $VERSION = $env:GITHUB_RUN_NUMBER - 17
           echo "Release version: $VERSION"
-          echo "release_version=$VERSION" >> $GITHUB_ENV
+          echo "release_version=$VERSION" >> $env:GITHUB_ENV
+        shell: pwsh
+        env:
+            GITHUB_RUN_NUMBER: ${{ github.run_number }}
 
       - name: Create GitHub release
         id: create_release
