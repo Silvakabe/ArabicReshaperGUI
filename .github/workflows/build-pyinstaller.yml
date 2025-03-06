@@ -13,11 +13,11 @@ jobs:
       - name: Create Executable
         uses: sayyid5416/pyinstaller@v1
         with:
-          python_ver: '3.6'
+          python_ver: '3.8'
           spec: 'src/build.spec'
           requirements: 'src/requirements.txt'
           upload_exe_with_name: 'My executable'
-          options: --onefile, --name "My App", --windowed
+          options: --onefile, --name "ReshaperGUI", --windowed
       - name: Clean up (optional)
         run: |
           # Optionally clean up the build folder
