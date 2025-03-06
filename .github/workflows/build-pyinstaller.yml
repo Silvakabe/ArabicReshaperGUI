@@ -1,4 +1,4 @@
-name: Build with PyInstaller and Upload to GitHub Release
+name: Build PyInstaller and Release
 
 on:
   push:
