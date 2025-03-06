@@ -27,7 +27,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: built-executable
-          path: reshapeGUI.exe
+          path: dist/reshapeGUI.exe
       - name: Notify success
         run: |
           echo "Build completed successfully!"
