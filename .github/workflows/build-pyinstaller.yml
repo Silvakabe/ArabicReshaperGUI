@@ -10,6 +10,7 @@ on:
 
 jobs:
   build:
+    name: "Build Executable"
     runs-on: windows-latest
 
     steps:
@@ -28,15 +29,23 @@ jobs:
       - name: Clean up
         run: |
           Remove-Item -Recurse -Force build, dist, reshapeGUI.spec
-
+          
+      - name: Notify success
+        run: |
+          echo "Build and release completed successfully!"
+  release:
+      name: "Create Release"
+      runs-on: windows-latest
+      needs: build
+      steps:
       - name: Create GitHub release
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ github.sha }}
-          release_name: Release ${{ github.sha }}
+          tag_name: ${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
           body: |
-            This is the release for version ${{ github.sha }}.
+            This is the release for version ${{ github.run_number }}.
           draft: false
           prerelease: false
         env:
@@ -49,7 +58,3 @@ jobs:
           asset_path: dist/ReshaperGUI.exe
           asset_name: ReshaperGUI.exe
           asset_content_type: application/octet-stream
-          
-      - name: Notify success
-        run: |
-          echo "Build and release completed successfully!"
