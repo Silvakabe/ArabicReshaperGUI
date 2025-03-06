@@ -1,0 +1,36 @@
+name: Build with PyInstaller
+
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest  # Runs on Windows
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'  # Choose your Python version
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt  # If you have dependencies
+
+      - name: Build executable
+        run: |
+          pyinstaller --onefile --windowed reshapeGUI.py  # Change main.py to your script
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-executable
+          path: dist/main.exe  # Ensure this path matches your PyInstaller output
