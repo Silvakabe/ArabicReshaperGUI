@@ -1,15 +1,21 @@
-name: Build with PyInstaller
+name: Build with PyInstaller and Upload to GitHub Release
 
-on: 
+on:
   push:
     branches:
       - Main
   pull_request:
+    branches:
+      - Main
 
 jobs:
   build:
-    runs-on: windows-latest  # Runs on Windows
+    runs-on: windows-latest
+
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Create Executable
         uses: sayyid5416/pyinstaller@v1
         with:
@@ -18,17 +24,32 @@ jobs:
           requirements: 'requirements.txt'
           upload_exe_with_name: 'ReshaperGUI'
           options: --onefile, --name "ReshaperGUI", --windowed
-          
+
       - name: Clean up
         run: |
           Remove-Item -Recurse -Force build, dist, reshapeGUI.spec
 
-      - name: Upload executable
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
         with:
-          name: built-executable
-          path: dist/reshapeGUI.exe
+          tag_name: ${{ github.sha }}
+          release_name: Release ${{ github.sha }}
+          body: |
+            This is the release for version ${{ github.sha }}.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Executable to GitHub Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/ReshaperGUI.exe
+          asset_name: ReshaperGUI.exe
+          asset_content_type: application/octet-stream
+          
       - name: Notify success
         run: |
-          echo "Build completed successfully!"
-     
+          echo "Build and release completed successfully!"
