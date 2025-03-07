@@ -29,6 +29,7 @@ jobs:
       - name: Get Latest Tag
         id: get_version
         run: |
+          # Get the latest tag, or default to "v1.0.0"
           $latest_tag = git tag --sort=-v:refname | Select-Object -First 1
           if (-not $latest_tag) {
             $latest_tag = "v1.0.0"
@@ -37,9 +38,9 @@ jobs:
 
           # Remove "v" from the tag and split into major, minor, patch
           $version_parts = $latest_tag.TrimStart('v').Split('.')
-          $major = $version_parts[0]
-          $minor = $version_parts[1]
-          $patch = $version_parts[2]
+          $major = [int]$version_parts[0]
+          $minor = [int]$version_parts[1]
+          $patch = [int]$version_parts[2]
 
           # Get the last commit message
           $last_commit_msg = git log -1 --pretty=%B
