@@ -1,12 +1,7 @@
 name: Build PyInstaller and Release
 
 on:
-  push:
-    branches:
-      - Main
-  pull_request:
-    branches:
-      - Main
+  workflow_dispatch:  # Enables manual triggering
 
 jobs:
   build:
