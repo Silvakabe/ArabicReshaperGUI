@@ -26,24 +26,49 @@ jobs:
           upload_exe_with_name: 'ReshaperGUI'
           options: --onefile, --name "ReshaperGUI", --windowed
 
-      - name: Set version number
-        id: set_version
+      - name: Get Latest Tag
+        id: get_version
         run: |
-          $VERSION = $env:GITHUB_RUN_NUMBER - 17
-          echo "Release version: $VERSION"
-          echo "release_version=$VERSION" >> $env:GITHUB_ENV
-        shell: pwsh
-        env:
-            GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          $latest_tag = git tag --sort=-v:refname | Select-Object -First 1
+          if (-not $latest_tag) {
+            $latest_tag = "v1.0.0"
+          }
+          Write-Host "Latest tag: $latest_tag"
+
+          # Remove "v" from the tag and split into major, minor, patch
+          $version_parts = $latest_tag.TrimStart('v').Split('.')
+          $major = $version_parts[0]
+          $minor = $version_parts[1]
+          $patch = $version_parts[2]
+
+          # Get the last commit message
+          $last_commit_msg = git log -1 --pretty=%B
+
+          # Determine the new tag based on the last commit message
+          if ($last_commit_msg -match "#major") {
+            $new_tag = "v" + ($major + 1) + ".0.0"
+          } elseif ($last_commit_msg -match "#minor") {
+            $new_tag = "v" + $major + "." + ($minor + 1) + ".0"
+          } else {
+            $new_tag = "v" + $major + "." + $minor + "." + ($patch + 1)
+          }
+
+          Write-Host "New tag: $new_tag"
+          echo "new_tag=$new_tag" >> $env:GITHUB_ENV
+
+      - name: Create New Tag
+        run: |
+          git tag $env:new_tag
+          git push origin $env:new_tag
 
       - name: Create GitHub release
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: v${{ env.release_version }}
-          release_name: Release v${{ env.release_version }}
+          tag_name: ${{ env.new_tag }}
+          release_name: Release ${{ env.new_tag }}
           body: |
-            This is the release for version v${{ env.release_version }}.
+            This is the release for version ${{ env.new_tag }}.
           draft: false
           prerelease: false
         env:
