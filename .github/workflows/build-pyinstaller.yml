@@ -18,44 +18,28 @@ jobs:
           python_ver: '3.8'
           spec: 'reshapeGUI.spec'
           requirements: 'requirements.txt'
-          upload_exe_with_name: 'ReshaperGUI'
           options: --onefile, --name "ReshaperGUI", --windowed
 
-      - name: Get Latest Tag
-        id: get_version
+      - name: Extract version from Python file
         run: |
-          # Get the latest tag, or default to "v1.0.0"
-          $latest_tag = git tag --sort=-v:refname | Select-Object -First 1
-          if (-not $latest_tag) {
-            $latest_tag = "v1.0.0"
-          }
-          Write-Host "Latest tag: $latest_tag"
+          version=$(grep "__version__" reshapeGUI.py | cut -d '"' -f2)
+          echo "VERSION=$version" >> $GITHUB_ENV
+          echo "new_tag=v$version" >> $GITHUB_ENV
+        shell: bash
 
-          # Remove "v" from the tag and split into major, minor, patch
-          $version_parts = $latest_tag.TrimStart('v').Split('.')
-          $major = [int]$version_parts[0]
-          $minor = [int]$version_parts[1]
-          $patch = [int]$version_parts[2]
-
-          # Get the last commit message
-          $last_commit_msg = git log -1 --pretty=%B
-
-          # Determine the new tag based on the last commit message
-          if ($last_commit_msg -match "#major") {
-            $new_tag = "v" + ($major + 1) + ".0.0"
-          } elseif ($last_commit_msg -match "#minor") {
-            $new_tag = "v" + $major + "." + ($minor + 1) + ".0"
-          } else {
-            $new_tag = "v" + $major + "." + $minor + "." + ($patch + 1)
-          }
-
-          Write-Host "New tag: $new_tag"
-          echo "new_tag=$new_tag" >> $env:GITHUB_ENV
+      - name: Check if tag exists
+        run: |
+          if git rev-parse "refs/tags/${{ env.new_tag }}" >/dev/null 2>&1; then
+            echo "Tag ${{ env.new_tag }} already exists. Aborting."
+            exit 1
+          fi
+        shell: bash
 
       - name: Create New Tag
         run: |
-          git tag $env:new_tag
-          git push origin $env:new_tag
+          git tag ${{ env.new_tag }}
+          git push origin ${{ env.new_tag }}
+        shell: bash
 
       - name: Create GitHub release
         id: create_release
@@ -70,12 +54,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Rename executable
+        run: |
+          mv dist/ReshaperGUI.exe dist/ReshaperGUI-${{ env.new_tag }}.exe
+        shell: bash
+
       - name: Upload Executable to GitHub Release
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/reshapeGUI.exe
-          asset_name: reshapeGUI.exe
+          asset_path: dist/ReshaperGUI-${{ env.new_tag }}.exe
+          asset_name: ReshaperGUI-${{ env.new_tag }}.exe
           asset_content_type: application/octet-stream
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -83,7 +72,9 @@ jobs:
       - name: Clean up
         run: |
           Remove-Item -Recurse -Force build, dist, reshapeGUI.spec
-          
+        shell: pwsh
+
       - name: Notify success
         run: |
           echo "Build and release completed successfully!"
+        shell: pwsh
