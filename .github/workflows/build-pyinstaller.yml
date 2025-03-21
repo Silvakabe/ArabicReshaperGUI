@@ -94,8 +94,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/ReshaperGUI-${{ env.new_tag }}.exe
-          asset_name: ReshaperGUI-${{ env.new_tag }}.exe
+          asset_path: dist/reshapeGUI-${{ env.new_tag }}.exe
+          asset_name: reshapeGUI-${{ env.new_tag }}.exe
           asset_content_type: application/octet-stream
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
