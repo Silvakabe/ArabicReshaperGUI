@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Create Executable
-        id: pyinstaller  # Added id to reference this step
+        id: pyinstaller  # Added id to reference this step's outcome
         uses: sayyid5416/pyinstaller@v1
         with:
           python_ver: '3.8'
@@ -31,16 +31,23 @@ jobs:
         shell: bash
 
       - name: List dist directory contents
-        run: dir dist
+        run: |
+          echo "Listing dist directory:"
+          dir dist
         shell: bash
 
       - name: Find executable file
         run: |
-          exe_file=$(find dist -iname "reshapergui.exe" -type f)
+          # List contents of dist directory for debugging
+          echo "Contents of dist directory:"
+          ls -la dist || dir dist
+          # Search for the executable with the expected name
+          exe_file=$(find dist -iname "ReshaperGUI.exe" -type f)
           if [ -z "$exe_file" ]; then
-            echo "Executable file not found in dist directory."
+            echo "Executable file 'ReshaperGUI.exe' not found in dist directory."
             exit 1
           fi
+          echo "Found executable: $exe_file"
           echo "EXE_FILE=$exe_file" >> $GITHUB_ENV
         shell: bash
 
