@@ -2,6 +2,7 @@ from tkinter import font, Tk, Label, Text, Button, Frame, LEFT, END, IntVar, Che
 from arabic_reshaper import ArabicReshaper
 from bidi.algorithm import get_display
 
+__version__ = "v1.2.0"
 configuration = {
     'delete_harakat': False
 }
@@ -90,7 +91,6 @@ def reverse_reshaping(reshaped_text):
             recovered_text += reshaped_text[i]
             i += 1
     return recovered_text
-
 
 def delete_text():
     inputtxt.delete("1.0", END)
