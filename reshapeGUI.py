@@ -1,6 +1,5 @@
 from tkinter import font, Tk, Label, Text, Button, Frame, LEFT, END, IntVar, Checkbutton
 from arabic_reshaper import ArabicReshaper
-from bidi.algorithm import get_display
 
 __version__ = "v1.2.0"
 configuration = {
@@ -52,12 +51,12 @@ def take_input(event=None):
     Output.delete("1.0", END)
     reshape = reshaper.reshape(input_word)
     if check_var.get() == 0:
-        Output.insert(END, get_display(reshape))
+        Output.insert(END, reshape)
     else:
         reshaped_lines = reshape.split('\n')
         reshaped_lines = ["{a:r:}" + line + "{a:r:}" for line in reshaped_lines]
         reshaped_text = '\n'.join(reshaped_lines)
-        Output.insert(END, get_display(reshaped_text))
+        Output.insert(END, reshaped_text)
 
 
 def copy_output(outtext):
