@@ -19,8 +19,8 @@ jobs:
           python_ver: '3.8'
           spec: 'reshapeGUI.spec'
           requirements: 'requirements.txt'
-          upload_exe_with_name: 'ReshaperGUI'
-          options: --onefile, --name "ReshaperGUI", --windowed
+          upload_exe_with_name: 'reshapeGUI'
+          options: --onefile, --name "reshapeGUI", --windowed
 
       - name: Check PyInstaller success
         run: |
@@ -42,9 +42,9 @@ jobs:
           echo "Contents of dist directory:"
           ls -la dist || dir dist
           # Search for the executable with the expected name
-          exe_file=$(find dist -iname "ReshaperGUI.exe" -type f)
+          exe_file=$(find dist -iname "reshapeGUI.exe" -type f)
           if [ -z "$exe_file" ]; then
-            echo "Executable file 'ReshaperGUI.exe' not found in dist directory."
+            echo "Executable file 'reshapeGUI.exe' not found in dist directory."
             exit 1
           fi
           echo "Found executable: $exe_file"
