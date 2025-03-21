@@ -1,12 +1,13 @@
 from tkinter import font, Tk, Label, Text, Button, Frame, LEFT, END, IntVar, Checkbutton
 from arabic_reshaper import ArabicReshaper
+from bidi.algorithm import get_display
 
 configuration = {
     'delete_harakat': False
 }
 root = Tk()
-root.geometry("400x400")
-root.title("umi ara_resh test")
+root.geometry("400x650")
+root.title("ara_resh ui v1")
 
 reshaper = ArabicReshaper(configuration=configuration)
 
@@ -40,6 +41,8 @@ reverse_reshaper_dict = {
     'ﻭ': 'و', 'ﻮ': 'و',
     'ﻱ': 'ي', 'ﻲ': 'ي', 'ﻴ': 'ي', 'ﻳ': 'ي',
     'ﻻ': 'لا',
+    'ﺎ': 'ا',
+    'ﺔ': 'ة',
 }
 
 
@@ -48,17 +51,17 @@ def take_input(event=None):
     Output.delete("1.0", END)
     reshape = reshaper.reshape(input_word)
     if check_var.get() == 0:
-        Output.insert(END, reshape)
+        Output.insert(END, get_display(reshape))
     else:
         reshaped_lines = reshape.split('\n')
         reshaped_lines = ["{a:r:}" + line + "{a:r:}" for line in reshaped_lines]
         reshaped_text = '\n'.join(reshaped_lines)
-        Output.insert(END, reshaped_text)
+        Output.insert(END, get_display(reshaped_text))
 
 
-def copy_output():
+def copy_output(outtext):
     root.clipboard_clear()
-    root.clipboard_append(Output.get("1.0", 'end-1c'))
+    root.clipboard_append(outtext.get("1.0", 'end-1c'))
 
 
 def paste_text():
@@ -68,21 +71,16 @@ def paste_text():
 
 
 def reverse_text():
-    reshaped_text = Output.get("1.0", 'end-1c')
-
-    normal_text = reverse_reshaping(reshaped_text)
-    print("Recovered Text:", normal_text)
-    Output.delete("1.0", END)
-    Output.insert(END, normal_text)
+    reversedoutput.delete("1.0", END)
+    reshaped_text = inputtxt.get("1.0", 'end-1c')
+    reversedoutput.insert(END, reverse_reshaping(reshaped_text))
 
 
 def reverse_reshaping(reshaped_text):
     recovered_text = ""
     i = 0
     while i < len(reshaped_text):
-
         if reshaped_text[i] in reverse_reshaper_dict:
-
             recovered_text += reverse_reshaper_dict[reshaped_text[i]]
             i += 1
         elif reshaped_text[i] == "ﻼ":
@@ -94,30 +92,49 @@ def reverse_reshaping(reshaped_text):
     return recovered_text
 
 
+def delete_text():
+    inputtxt.delete("1.0", END)
+    Output.delete("1.0", END)
+    reversedoutput.delete("1.0", END)
+
+
 arabic_font = font.Font(family="Arial", size=18)
 
 l = Label(root, text="Enter text")
 inputtxt = Text(root, height=5, width=40, bg="light yellow", font=arabic_font)
 Output = Text(root, height=5, width=40, bg="light cyan", font=arabic_font)
+reversedoutput = Text(root, height=5, width=40, bg="light gray", font=arabic_font)
 
 inputtxt.bind("<KeyRelease>", take_input)
 
 button_frame = Frame(root)
 paste_button = Button(button_frame, text="Paste", command=paste_text)
-copy_output_button = Button(button_frame, text="Copy Output", command=copy_output)
-test_button = Button(button_frame, text="Reverse", command=reverse_text)
+copy_output_button = Button(button_frame, text="Copy Output", command=lambda: copy_output(Output))
+delete_button = Button(button_frame, text="Delete", command=delete_text)
 
 check_var = IntVar()
 check = Checkbutton(root, text="Include {a:r:}", variable=check_var)
 check_var.trace_add("write", lambda *args: take_input())
+
+l2 = Label(root, text="Converted text")
+l3 = Label(root, text="Reversed text")
+
+rev_button_frame = Frame(root)
+copy_reversed_button = Button(rev_button_frame, text="Copy reversed", command=lambda: copy_output(reversedoutput))
+reverse_button = Button(rev_button_frame, text="Reverse", command=reverse_text)
 
 l.pack()
 inputtxt.pack()
 button_frame.pack()
 paste_button.pack(side=LEFT)
 copy_output_button.pack(side=LEFT)
-test_button.pack(side=LEFT)
+delete_button.pack(side=LEFT)
+l2.pack()
 Output.pack()
+l3.pack()
+rev_button_frame.pack()
+reverse_button.pack(side=LEFT)
+copy_reversed_button.pack(side=LEFT)
+reversedoutput.pack()
 check.pack()
-
 root.mainloop()
