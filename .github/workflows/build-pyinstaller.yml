@@ -20,7 +20,6 @@ jobs:
           spec: 'reshapeGUI.spec'
           requirements: 'requirements.txt'
           upload_exe_with_name: 'reshapeGUI'
-          options: --onefile, --name "reshapeGUI", --windowed
 
       - name: Check PyInstaller success
         run: |
