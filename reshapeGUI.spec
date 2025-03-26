@@ -1,23 +1,17 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-from PyInstaller.utils.hooks import collect_submodules
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
-hidden_imports = collect_submodules('PyQt6') + [
-    'pkgutil',
-    'PyQt6.QtCore',
-    'PyQt6.QtGui',
-    'PyQt6.QtWidgets',
-    'PyQt6.QtNetwork',
-    'PyQt6.QtPrintSupport',
-    'arabic_reshaper'  # Ensure ArabicReshaper is included
-]
+# Collect all PyQt6 submodules and resources (e.g., Qt plugins)
+hiddenimports = collect_submodules('PyQt6')
+datas = collect_data_files('PyQt6')
 
 a = Analysis(
     ['reshapeGUI.py'],
     pathex=[],
     binaries=[],
-    datas=[],
-    hiddenimports=hidden_imports,
+    datas=datas,  # Include PyQt6 data files (e.g., Qt plugins)
+    hiddenimports=hiddenimports,  # Ensure PyQt6 submodules are included
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -41,7 +35,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=False,  # This will ensure the app is windowed
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
