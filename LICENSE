@@ -1,8 +1,11 @@
+GNU GENERAL PUBLIC LICENSE
+Version 3, 29 June 2007
+Copyright (C) 2025 Nawaf A.
 This project uses PyQt6, which is licensed under the GPL v3.0.
 
-By using this software, you agree to the terms of the GPL v3.0. 
+By using this software, you agree to the terms of the GPL v3.0.
 For more details, please see the full GPL v3.0 license at:
-https://www.gnu.org/licenses/gpl-3.0.html
+<https://www.gnu.org/licenses/gpl-3.0.html>
 
 This project is also licensed under the GPL v3.0.
 
