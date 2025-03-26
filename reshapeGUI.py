@@ -1,13 +1,15 @@
-from tkinter import font, Tk, Label, Text, Button, Frame, LEFT, END, IntVar, Checkbutton
+import sys
+
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QWidget, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QCheckBox
+from PyQt6.QtGui import QFont
 from arabic_reshaper import ArabicReshaper
 
-__version__ = "v1.2.0"
+__version__ = "2.0.0"
+
 configuration = {
     'delete_harakat': False
 }
-root = Tk()
-root.geometry("400x650")
-root.title("ara_resh ui v1")
 
 reshaper = ArabicReshaper(configuration=configuration)
 
@@ -45,95 +47,111 @@ reverse_reshaper_dict = {
     'ﺔ': 'ة',
 }
 
+class ArabicReshaperApp(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
 
-def take_input(event=None):
-    input_word = inputtxt.get("1.0", 'end-1c')
-    Output.delete("1.0", END)
-    reshape = reshaper.reshape(input_word)
-    if check_var.get() == 0:
-        Output.insert(END, reshape)
-    else:
-        reshaped_lines = reshape.split('\n')
-        reshaped_lines = ["{a:r:}" + line + "{a:r:}" for line in reshaped_lines]
-        reshaped_text = '\n'.join(reshaped_lines)
-        Output.insert(END, reshaped_text)
+    def initUI(self):
+        self.setWindowTitle("Ara Reshaper UI")
+        self.setGeometry(100, 100, 400, 650)
+
+        self.arabic_font = QFont("Arial", 18)
+
+        self.label_input = QLabel("Enter text:")
+        self.text_input = QTextEdit()
+        # self.text_input.setFont(self.arabic_font)
+        self.text_input.textChanged.connect(self.take_input)
+        self.text_input.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+
+        self.checkbox = QCheckBox("Include {a:r:}")
+        self.checkbox.stateChanged.connect(self.take_input)
+
+        self.btn_paste = QPushButton("Paste")
+        self.btn_paste.clicked.connect(self.paste_text)
+
+        self.btn_copy_output = QPushButton("Copy Output")
+        self.btn_copy_output.clicked.connect(lambda: self.copy_output(self.text_output))
+
+        self.btn_delete = QPushButton("Delete")
+        self.btn_delete.clicked.connect(self.delete_text)
+
+        self.label_output = QLabel("Converted text:")
+        self.text_output = QTextEdit()
+
+        # self.text_output.setFont(self.arabic_font)
+        self.text_output.setReadOnly(True)
+        self.text_output.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+        self.text_output.setStyleSheet("background-color: #DEDFE4; color: black; font-size: 12px;")
+
+        self.label_reversed = QLabel("Reversed text:")
+        self.text_reversed = QTextEdit()
+        # self.text_reversed.setFont(self.arabic_font)
+        self.text_reversed.setReadOnly(True)
+        self.text_reversed.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+        self.text_reversed.setStyleSheet("background-color: #DEDFE4; color: black; font-size: 12px;")
+
+        self.btn_reverse = QPushButton("Reverse")
+        self.btn_reverse.clicked.connect(self.reverse_text)
+
+        self.btn_copy_reversed = QPushButton("Copy Reversed")
+        self.btn_copy_reversed.clicked.connect(lambda: self.copy_output(self.text_reversed))
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.label_input)
+        layout.addWidget(self.text_input)
+
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(self.btn_paste)
+        button_layout.addWidget(self.btn_copy_output)
+        button_layout.addWidget(self.btn_delete)
+        layout.addLayout(button_layout)
+
+        layout.addWidget(self.checkbox)
+        layout.addWidget(self.label_output)
+        layout.addWidget(self.text_output)
+        layout.addWidget(self.label_reversed)
+        layout.addWidget(self.btn_reverse)
+        layout.addWidget(self.btn_copy_reversed)
+        layout.addWidget(self.text_reversed)
+
+        self.setLayout(layout)
+
+    def take_input(self):
+        input_text = self.text_input.toPlainText()
+        reshaped_text = reshaper.reshape(input_text)
+        if self.checkbox.isChecked():
+            reshaped_text = "\n".join(["{a:r:}" + line + "{a:r:}" for line in reshaped_text.split('\n')])
+        self.text_output.setPlainText(reshaped_text)
+
+    def copy_output(self, text_widget):
+        clipboard = QApplication.clipboard()
+        clipboard.setText(text_widget.toPlainText())
+
+    def paste_text(self):
+        self.text_input.setPlainText(QApplication.clipboard().text())
+
+    def delete_text(self):
+        self.text_input.clear()
+        self.text_output.clear()
+        self.text_reversed.clear()
+
+    def reverse_text(self):
+        reshaped_text = self.text_output.toPlainText()
+        reversed_text = ""
+        i = 0
+        while i < len(reshaped_text):
+            if reshaped_text[i] == "ﻼ":
+                reversed_text += "لا"
+                i += 1
+            else:
+                reversed_text += reverse_reshaper_dict.get(reshaped_text[i], reshaped_text[i])
+                i += 1
+
+        self.text_reversed.setPlainText(reversed_text)
 
 
-def copy_output(outtext):
-    root.clipboard_clear()
-    root.clipboard_append(outtext.get("1.0", 'end-1c'))
-
-
-def paste_text():
-    inputtxt.delete("1.0", END)
-    inputtxt.insert(END, root.clipboard_get())
-    take_input()
-
-
-def reverse_text():
-    reversedoutput.delete("1.0", END)
-    reshaped_text = inputtxt.get("1.0", 'end-1c')
-    reversedoutput.insert(END, reverse_reshaping(reshaped_text))
-
-
-def reverse_reshaping(reshaped_text):
-    recovered_text = ""
-    i = 0
-    while i < len(reshaped_text):
-        if reshaped_text[i] in reverse_reshaper_dict:
-            recovered_text += reverse_reshaper_dict[reshaped_text[i]]
-            i += 1
-        elif reshaped_text[i] == "ﻼ":
-            recovered_text += "لا"
-            i += 1
-        else:
-            recovered_text += reshaped_text[i]
-            i += 1
-    return recovered_text
-
-def delete_text():
-    inputtxt.delete("1.0", END)
-    Output.delete("1.0", END)
-    reversedoutput.delete("1.0", END)
-
-
-arabic_font = font.Font(family="Arial", size=18)
-
-l = Label(root, text="Enter text")
-inputtxt = Text(root, height=5, width=40, bg="light yellow", font=arabic_font)
-Output = Text(root, height=5, width=40, bg="light cyan", font=arabic_font)
-reversedoutput = Text(root, height=5, width=40, bg="light gray", font=arabic_font)
-
-inputtxt.bind("<KeyRelease>", take_input)
-
-button_frame = Frame(root)
-paste_button = Button(button_frame, text="Paste", command=paste_text)
-copy_output_button = Button(button_frame, text="Copy Output", command=lambda: copy_output(Output))
-delete_button = Button(button_frame, text="Delete", command=delete_text)
-
-check_var = IntVar()
-check = Checkbutton(root, text="Include {a:r:}", variable=check_var)
-check_var.trace_add("write", lambda *args: take_input())
-
-l2 = Label(root, text="Converted text")
-l3 = Label(root, text="Reversed text")
-
-rev_button_frame = Frame(root)
-copy_reversed_button = Button(rev_button_frame, text="Copy reversed", command=lambda: copy_output(reversedoutput))
-reverse_button = Button(rev_button_frame, text="Reverse", command=reverse_text)
-
-l.pack()
-inputtxt.pack()
-button_frame.pack()
-paste_button.pack(side=LEFT)
-copy_output_button.pack(side=LEFT)
-delete_button.pack(side=LEFT)
-l2.pack()
-Output.pack()
-l3.pack()
-rev_button_frame.pack()
-reverse_button.pack(side=LEFT)
-copy_reversed_button.pack(side=LEFT)
-reversedoutput.pack()
-check.pack()
-root.mainloop()
+app = QApplication(sys.argv)
+window = ArabicReshaperApp()
+window.show()
+sys.exit(app.exec())
