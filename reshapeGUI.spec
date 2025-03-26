@@ -1,12 +1,23 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+from PyInstaller.utils.hooks import collect_submodules
+
+hidden_imports = collect_submodules('PyQt6') + [
+    'pkgutil',
+    'PyQt6.QtCore',
+    'PyQt6.QtGui',
+    'PyQt6.QtWidgets',
+    'PyQt6.QtNetwork',
+    'PyQt6.QtPrintSupport',
+    'arabic_reshaper'  # Ensure ArabicReshaper is included
+]
 
 a = Analysis(
     ['reshapeGUI.py'],
     pathex=[],
     binaries=[],
     datas=[],
-    hiddenimports=['pkgutil'],
+    hiddenimports=hidden_imports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -14,6 +25,7 @@ a = Analysis(
     noarchive=False,
     optimize=0,
 )
+
 pyz = PYZ(a.pure)
 
 exe = EXE(
