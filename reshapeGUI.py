@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QApplication, QWidget, QTextEdit, QPushButton, QVBox
 from PyQt6.QtGui import QFont
 from arabic_reshaper import ArabicReshaper
 
-__version__ = "2.0.1"
+__version__ = "2.0.0"
 
 configuration = {
     'delete_harakat': False
