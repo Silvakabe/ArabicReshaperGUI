@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QWidget, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QCheckBox
 from PyQt6.QtGui import QFont
 from arabic_reshaper import ArabicReshaper
+import qdarktheme
 
 __version__ = "2.0.0"
 
@@ -48,13 +49,15 @@ reverse_reshaper_dict = {
 }
 
 class ArabicReshaperApp(QWidget):
+
     def __init__(self):
         super().__init__()
         self.initUI()
+        self.setGeometry(100, 100, 400, 650)
+
 
     def initUI(self):
         self.setWindowTitle("Ara Reshaper UI")
-        self.setGeometry(100, 100, 400, 650)
 
         self.arabic_font = QFont("Arial", 18)
 
@@ -82,14 +85,15 @@ class ArabicReshaperApp(QWidget):
         # self.text_output.setFont(self.arabic_font)
         self.text_output.setReadOnly(True)
         self.text_output.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
-        self.text_output.setStyleSheet("background-color: #DEDFE4; color: black; font-size: 12px;")
+        self.text_output.setStyleSheet("font-size: 12px;")
 
         self.label_reversed = QLabel("Reversed text:")
         self.text_reversed = QTextEdit()
+
         # self.text_reversed.setFont(self.arabic_font)
         self.text_reversed.setReadOnly(True)
         self.text_reversed.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
-        self.text_reversed.setStyleSheet("background-color: #DEDFE4; color: black; font-size: 12px;")
+        self.text_reversed.setStyleSheet("font-size: 12px;")
 
         self.btn_reverse = QPushButton("Reverse")
         self.btn_reverse.clicked.connect(self.reverse_text)
@@ -152,6 +156,8 @@ class ArabicReshaperApp(QWidget):
 
 
 app = QApplication(sys.argv)
+qdarktheme.setup_theme("auto")
+
 window = ArabicReshaperApp()
 window.show()
 sys.exit(app.exec())
